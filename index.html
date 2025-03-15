@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relativistic Time Dilation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white"
+  >
+    <h1 class="text-2xl font-bold mb-4">Relativistic Time Dilation</h1>
+
+    <div class="w-80 text-center">
+      <label for="speed" class="block text-lg"
+        >Speed (% of c): <span id="speedValue">0</span>%</label
+      >
+      <input
+        id="speed"
+        type="range"
+        min="0"
+        max="99.9"
+        step="0.1"
+        value="0"
+        class="w-full mt-2"
+      />
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-lg">
+        Lorentz Factor (γ): <span id="lorentzFactor">1.000</span>
+      </p>
+      <p class="text-lg">
+        Dilated Time (t'): <span id="dilatedTime">1.000</span> sec
+      </p>
+    </div>
+
+    <!-- Container -->
+    <div class="flex flex-row items-center justify-center gap-12 mt-6">
+      <!-- Digital Timer -->
+      <div class="text-center">
+        <div
+          class="w-32 h-32 flex items-center justify-center rounded-full border-4 border-white"
+        >
+          <span id="clockTime" class="text-2xl font-bold">0.0</span>
+        </div>
+        <p class="mt-2">Dilated Timer</p>
+      </div>
+
+      <!-- Analog Clock -->
+      <div
+        class="relative rounded-full bg-white border border-gray-300 shadow-md"
+        style="width: 300px; height: 300px"
+      >
+        <!-- Hour hand -->
+        <div
+          id="hour-hand"
+          class="absolute origin-bottom bg-gray-800 top-1/2 left-1/2 -translate-x-1/2 -translate-y-full"
+          style="width: 8px; height: 30%"
+        ></div>
+        <!-- Minute hand -->
+        <div
+          id="minute-hand"
+          class="absolute origin-bottom bg-gray-600 top-1/2 left-1/2 -translate-x-1/2 -translate-y-full"
+          style="width: 6px; height: 45%"
+        ></div>
+        <!-- Second hand -->
+        <div
+          id="second-hand"
+          class="absolute origin-bottom bg-red-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-full"
+          style="width: 4px; height: 50%"
+        ></div>
+        <!-- Center dot -->
+        <div
+          class="absolute bg-gray-800 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style="width: 12px; height: 12px; z-index: 10"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      const speedSlider = document.getElementById("speed");
+      const speedValue = document.getElementById("speedValue");
+      const lorentzFactor = document.getElementById("lorentzFactor");
+      const dilatedTime = document.getElementById("dilatedTime");
+      const hourHand = document.getElementById("hour-hand");
+      const minuteHand = document.getElementById("minute-hand");
+      const secondHand = document.getElementById("second-hand");
+      const clockTime = document.getElementById("clockTime");
+
+      let normalTime = 0;
+      let lastUpdate = performance.now();
+      let gamma = 1;
+
+      function updateTime() {
+        const now = performance.now();
+        const deltaTime = (now - lastUpdate) / 1000; // Convert to seconds
+        lastUpdate = now;
+
+        normalTime += deltaTime;
+        clockTime.textContent = (normalTime / gamma).toFixed(1);
+      }
+
+      function updateClock() {
+        const now = new Date();
+        const hours = now.getHours() % 12;
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        const hourDeg = hours * 30 + minutes * 0.5;
+        const minuteDeg = minutes * 6;
+        const secondDeg = seconds * 6;
+
+        hourHand.style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+        minuteHand.style.transform = `translate(-50%, -100%) rotate(${minuteDeg}deg)`;
+        secondHand.style.transform = `translate(-50%, -100%) rotate(${secondDeg}deg)`;
+      }
+
+      function updateLoop() {
+        updateTime();
+        updateClock();
+        setTimeout(updateLoop, 1000 * gamma);
+      }
+
+      updateLoop();
+
+      speedSlider.addEventListener("input", function () {
+        const v = (parseFloat(speedSlider.value) / 100) * 299792458;
+        const c = 299792458;
+        gamma = 1 / Math.sqrt(1 - (v * v) / (c * c));
+
+        speedValue.textContent = speedSlider.value;
+        lorentzFactor.textContent = gamma.toFixed(3);
+        dilatedTime.textContent = gamma.toFixed(3);
+      });
+    </script>
+  </body>
+</html>
